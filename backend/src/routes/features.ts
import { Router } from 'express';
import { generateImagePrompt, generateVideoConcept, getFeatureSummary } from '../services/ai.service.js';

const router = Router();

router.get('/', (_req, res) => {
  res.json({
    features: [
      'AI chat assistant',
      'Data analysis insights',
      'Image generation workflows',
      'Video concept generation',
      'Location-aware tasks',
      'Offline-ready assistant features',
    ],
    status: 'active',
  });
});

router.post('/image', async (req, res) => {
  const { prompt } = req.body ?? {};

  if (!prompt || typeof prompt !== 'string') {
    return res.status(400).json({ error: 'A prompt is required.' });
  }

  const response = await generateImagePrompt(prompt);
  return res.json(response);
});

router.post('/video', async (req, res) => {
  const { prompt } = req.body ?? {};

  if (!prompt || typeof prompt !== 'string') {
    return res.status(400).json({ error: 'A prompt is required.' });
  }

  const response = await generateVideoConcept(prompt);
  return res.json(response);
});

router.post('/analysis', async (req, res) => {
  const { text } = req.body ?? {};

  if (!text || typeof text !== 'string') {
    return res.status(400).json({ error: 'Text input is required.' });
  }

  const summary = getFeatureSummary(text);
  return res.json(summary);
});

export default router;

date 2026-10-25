@@ -1,0 +1,29 @@
+import { Router } from 'express';
+import { generateChatResponse } from '../services/ai.service.js';
+
+const router = Router();
+
+router.post('/', async (req, res) => {
+  const { message, model } = req.body ?? {};
+
+  if (!message || typeof message !== 'string' || message.trim().length === 0) {
+    return res.status(400).json({ error: 'A message is required.' });
+  }
+
+  try {
+    const reply = await generateChatResponse({
+      message,
+      model: typeof model === 'string' ? model : undefined,
+    });
+
+    return res.json({
+      reply,
+      status: 'success',
+    });
+  } catch (error) {
+    const messageText = error instanceof Error ? error.message : 'Unknown error';
+    return res.status(500).json({ error: messageText });
+  }
+});
+
+export default router;

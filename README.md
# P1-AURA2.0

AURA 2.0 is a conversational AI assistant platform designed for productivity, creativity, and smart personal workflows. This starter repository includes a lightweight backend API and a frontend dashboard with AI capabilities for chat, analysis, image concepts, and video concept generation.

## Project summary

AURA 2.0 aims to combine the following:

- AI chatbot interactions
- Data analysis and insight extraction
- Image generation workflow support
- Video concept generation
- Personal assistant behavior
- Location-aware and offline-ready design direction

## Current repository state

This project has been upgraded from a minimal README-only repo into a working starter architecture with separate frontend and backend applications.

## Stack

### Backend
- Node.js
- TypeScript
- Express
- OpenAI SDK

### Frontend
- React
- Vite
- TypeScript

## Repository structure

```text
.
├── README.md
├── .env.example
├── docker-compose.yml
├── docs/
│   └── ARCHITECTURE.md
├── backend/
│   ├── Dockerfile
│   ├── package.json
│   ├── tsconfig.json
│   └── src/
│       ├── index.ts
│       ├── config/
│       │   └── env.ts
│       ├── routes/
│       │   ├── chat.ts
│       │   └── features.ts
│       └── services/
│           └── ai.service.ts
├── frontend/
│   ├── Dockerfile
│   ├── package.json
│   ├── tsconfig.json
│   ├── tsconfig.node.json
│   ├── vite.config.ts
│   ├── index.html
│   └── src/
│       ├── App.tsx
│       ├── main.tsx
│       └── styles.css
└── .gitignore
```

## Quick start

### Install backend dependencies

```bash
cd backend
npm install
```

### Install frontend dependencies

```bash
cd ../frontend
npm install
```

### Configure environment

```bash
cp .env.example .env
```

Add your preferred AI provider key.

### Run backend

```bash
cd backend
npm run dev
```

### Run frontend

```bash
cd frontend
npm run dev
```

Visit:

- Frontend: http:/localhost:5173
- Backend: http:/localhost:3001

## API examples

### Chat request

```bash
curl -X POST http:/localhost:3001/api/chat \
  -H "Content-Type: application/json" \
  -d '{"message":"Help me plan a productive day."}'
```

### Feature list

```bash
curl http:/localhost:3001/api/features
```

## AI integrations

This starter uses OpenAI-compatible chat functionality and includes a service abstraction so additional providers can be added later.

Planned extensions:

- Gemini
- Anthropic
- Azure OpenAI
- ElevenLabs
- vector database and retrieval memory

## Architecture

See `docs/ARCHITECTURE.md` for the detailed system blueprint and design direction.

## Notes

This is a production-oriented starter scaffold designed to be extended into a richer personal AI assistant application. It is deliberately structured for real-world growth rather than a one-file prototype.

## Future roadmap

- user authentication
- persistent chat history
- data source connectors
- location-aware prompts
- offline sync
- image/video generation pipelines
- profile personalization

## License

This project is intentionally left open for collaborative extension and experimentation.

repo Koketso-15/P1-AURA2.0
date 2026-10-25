@@ -1,0 +1,129 @@
+# AURA 2.0 Architecture
+
+## Overview
+
+AURA 2.0 is designed as a modular AI assistant platform with a clear split between a frontend interface and a backend API service layer. The system is built to support chat, data analysis, image ideas, video concepts, offline-readiness, and personal assistant workflows.
+
+## Core goals
+
+- Provide a general-purpose AI chat experience
+- Add data analysis and summarization tools
+- Support future image and video generation integrations
+- Keep the UI lightweight and developer friendly
+- Make the backend provider-agnostic and extensible
+- Support future offline persistence and location-aware features
+
+## High-level architecture
+
+```text
+Frontend (React + Vite)
+        |
+        |  HTTP requests
+        v
+Backend (Express + TypeScript)
+        |
+        |  normalized service calls
+        v
+AI Provider Layer
+  - OpenAI compatible endpoints
+  - future: Gemini, Anthropic, Azure, ElevenLabs
+        |
+        v
+Response + orchestration
+```
+
+## Layers
+
+### 1. Frontend layer
+
+The frontend is responsible for:
+- showing the AI interface
+- collecting user prompts
+- rendering assistant responses
+- triggering feature flows such as chat, creative ideation, and analysis
+
+### 2. API layer
+
+The backend exposes endpoints for:
+- chat conversations
+- AI feature discovery
+- image prompt generation
+- video concept generation
+- analysis and summarization
+
+This layer validates inputs and centralizes business logic.
+
+### 3. AI service layer
+
+AI logic is isolated in a service module. This keeps the code maintainable and allows easy switching between providers.
+
+The current starter includes:
+- OpenAI integration via the official SDK
+- fallback response behavior when no API key is configured
+- structured response objects for image and video workflows
+
+### 4. Extensibility layer
+
+This project is intentionally structured to support future expansion with:
+- user profiles and sessions
+- external data connectors
+- location-aware workflows
+- vector memory or RAG
+- offline caching and sync
+- voice or speech interfaces
+
+## Request flow
+
+1. User enters a prompt in the React UI.
+2. Frontend sends a POST request to the backend API.
+3. Backend validates payload and routes it to the AI service.
+4. AI service calls a configured provider or returns fallback text.
+5. Response is serialized and displayed in the UI.
+
+## Feature groups
+
+### Conversational assistant
+
+- chat prompts
+- daily tasks
+- planning recommendations
+- summarization
+
+### Data analysis
+
+- parsing user text into insights
+- summarizing trends or themes
+- structured analysis for future dashboards
+
+### Creative generation
+
+- text-to-image prompts
+- concept generation for short-form video
+- product storytelling and narrative scripts
+
+### Personal assistant workflows
+
+- local-first reminders
+- profile-aware recommendations
+- future memory and personalization support
+
+## Deployment direction
+
+The repo is ready for local development and containerized deployment. A future production progression could include:
+
+- PostgreSQL for user data and sessions
+- Redis for caching and queueing
+- cloud storage for generated assets
+- auth and role-based access control
+- load-balanced API deployments
+
+## Recommended next milestones
+
+1. Add authentication and user profiles
+2. Add persistent memory or database-backed session history
+3. Connect a real image generation provider
+4. Connect a real video generation workflow
+5. Add location-aware features and offline sync
+6. Package the backend and frontend into production deployments
+
+This architecture is intentionally simple but scalable enough to grow into a genuine AI personal assistant platform.

@@ -1,0 +1,10 @@
+# Ignore environment and build files
+node_modules/
+dist/
+.env
+.env.local
+.vite/
+coverage/
+.DS_Store
+backend/.env
+frontend/.env

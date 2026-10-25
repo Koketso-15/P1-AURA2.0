@@ -1,0 +1,85 @@
+import { useState } from 'react';
+
+const apiBase = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:3001';
+
+export default function App() {
+  const [prompt, setPrompt] = useState('Help me plan a productive day for my AI startup work.');
+  const [response, setResponse] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const sendPrompt = async (customPrompt?: string) => {
+    const nextPrompt = customPrompt ?? prompt;
+    setLoading(true);
+    setResponse('');
+
+    try {
+      const res = await fetch(`${apiBase}/api/chat`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: nextPrompt }),
+      });
+
+      const data = await res.json();
+      setResponse(data.reply ?? data.error ?? 'No response returned.');
+    } catch (error) {
+      setResponse(
+        error instanceof Error ? error.message : 'Could not reach the backend. Make sure it is running.',
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="app-shell">
+      <aside className="sidebar">
+        <div>
+          <p className="eyebrow">Personal AI assistant</p>
+          <h1>AURA 2.0</h1>
+        </div>
+
+        <nav className="nav">
+          <button onClick={() => sendPrompt('Summarize my workday and suggest priorities.')}>Chat</button>
+          <button onClick={() => sendPrompt('Create a marketing concept for an AI productivity app.')}>Creative</button>
+          <button onClick={() => sendPrompt('Analyze this dataset and highlight business insights.')}>Analysis</button>
+          <button onClick={() => sendPrompt('Draft a script for a 30-second product video.')}>Video</button>
+        </nav>
+      </aside>
+
+      <main className="content">
+        <header className="topbar">
+          <div>
+            <p className="eyebrow">AI workspace</p>
+            <h2>Assistant Console</h2>
+          </div>
+        </header>
+
+        <section className="panel">
+          <textarea
+            value={prompt}
+            onChange={(event) => setPrompt(event.target.value)}
+            rows={6}
+            placeholder="Ask AURA anything..."
+          />
+
+          <div className="actions">
+            <button className="primary" onClick={() => sendPrompt()} disabled={loading}>
+              {loading ? 'Thinking...' : 'Send to AURA'}
+            </button>
+          </div>
+        </section>
+
+        <section className="panel response-panel">
+          <h3>Response</h3>
+          <div className="response-box">
+            {response ? (
+              <p>{response}</p>
+            ) : (
+              <p className="placeholder">Your AI response will appear here.</p>
+            )}
+          </div>
+        </section>
+      </main>
+    </div>
+  );
+}

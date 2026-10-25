@@ -1,0 +1,200 @@
+# AURA 2.0
+
+AURA 2.0 is a full-stack AI personal assistant platform for chat, data analysis, image generation, video concepting, offline support, and location-aware workflows. This starter repo sets up a modern backend and frontend with AI provider integrations, a clean architecture, and a developer-friendly local setup.
+
+## What this project includes
+
+- AI chat assistant with OpenAI-compatible integration
+- Data analysis and insight endpoints
+- Image generation prompt workflow
+- Video concept generation workflow
+- Frontend dashboard for interacting with the assistant
+- Modular backend service layer and routes
+- Documentation and architecture guidance
+
+## Repository structure
+
+```text
+.
+├── README.md
+├── .env.example
+├── docker-compose.yml
+├── docs/
+│   └── ARCHITECTURE.md
+├── backend/
+│   ├── Dockerfile
+│   ├── package.json
+│   ├── tsconfig.json
+│   └── src/
+│       ├── index.ts
+│       ├── config/
+│       │   └── env.ts
+│       ├── routes/
+│       │   ├── chat.ts
+│       │   └── features.ts
+│       └── services/
+│           └── ai.service.ts
+├── frontend/
+│   ├── Dockerfile
+│   ├── package.json
+│   ├── tsconfig.json
+│   ├── tsconfig.node.json
+│   ├── vite.config.ts
+│   ├── index.html
+│   └── src/
+│       ├── App.tsx
+│       ├── main.tsx
+│       └── styles.css
+└── .gitignore
+```
+
+## Tech stack
+
+### Backend
+- Node.js + TypeScript
+- Express
+- OpenAI API integration
+- Environment-based configuration
+
+### Frontend
+- React + TypeScript
+- Vite
+- Simple dashboard UI
+
+## AI integrations
+
+This starter supports:
+
+- OpenAI Chat Completions
+- AI fallback mode when no API key is configured
+- Extensible service layer for future add-ons such as:
+  - Gemini
+  - Anthropic
+  - ElevenLabs
+  - Azure OpenAI
+
+## Local setup
+
+### 1. Install dependencies
+
+```bash
+cd backend && npm install
+cd ../frontend && npm install
+```
+
+### 2. Configure environment
+
+```bash
+cp .env.example .env
+```
+
+Then edit the values in `.env` for your chosen AI provider.
+
+### 3. Run the backend
+
+```bash
+cd backend
+npm run dev
+```
+
+Backend runs on http://localhost:3001
+
+### 4. Run the frontend
+
+```bash
+cd frontend
+npm run dev
+```
+
+Frontend runs on http://localhost:5173
+
+### 5. Optional Docker setup
+
+```bash
+docker-compose up --build
+```
+
+## Environment variables
+
+Example values are in `.env.example`.
+
+Required:
+
+```env
+PORT=3001
+AI_PROVIDER=openai
+OPENAI_API_KEY=your_key_here
+OPENAI_MODEL=gpt-4o-mini
+FRONTEND_URL=http://localhost:5173
+```
+
+## API overview
+
+### Chat
+
+```http
+POST /api/chat
+Content-Type: application/json
+
+{
+  "message": "Help me summarize my daily workflow",
+  "model": "gpt-4o-mini"
+}
+```
+
+### Features
+
+```http
+GET /api/features
+```
+
+### Image generation prompt
+
+```http
+POST /api/features/image
+Content-Type: application/json
+
+{
+  "prompt": "Create a cinematic hero image for a personal AI assistant"
+}
+```
+
+### Video concept prompt
+
+```http
+POST /api/features/video
+Content-Type: application/json
+
+{
+  "prompt": "Create a short product teaser for a finance assistant"
+}
+```
+
+## Architecture summary
+
+AURA uses a simple layered architecture:
+
+- Frontend sends user requests to the backend API
+- Backend validates inputs and routes them to AI services
+- AI service layer calls providers like OpenAI
+- Response is normalized and returned to the UI
+
+A fuller architectural explanation is in `docs/ARCHITECTURE.md`.
+
+## Planned features
+
+- Multi-model AI routing
+- Offline mode with local cache and queued requests
+- Location-aware assistant tasks
+- Secure user profile management
+- Data analysis insights and charts
+- Image and video generation workflows
+- Personal assistant memory and preferences
+
+## Notes
+
+This is a solid production-oriented starter, not a finished product. It gives you the structure to extend AURA into a fully featured AI assistant platform with multi-service integrations and a clean frontend/backend separation.
+
+## License
+
+This project is provided as a starter implementation for experimentation and extension.

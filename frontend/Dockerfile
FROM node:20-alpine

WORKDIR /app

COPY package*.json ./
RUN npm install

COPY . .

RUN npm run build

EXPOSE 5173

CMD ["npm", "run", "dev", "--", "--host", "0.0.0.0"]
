@@ -1,0 +1,77 @@
+import OpenAI from 'openai';
+import { env } from '../config/env.js';
+
+const openai = env.OPENAI_API_KEY
+  ? new OpenAI({ apiKey: env.OPENAI_API_KEY })
+  : null;
+
+export async function generateChatResponse({
+  message,
+  model = env.OPENAI_MODEL,
+}: {
+  message: string;
+  model?: string;
+}): Promise<string> {
+  if (!openai) {
+    return `AURA is running in local fallback mode. Add OPENAI_API_KEY in your .env file to enable live AI responses.\n\nYour request: ${message}`;
+  }
+
+  const completion = await openai.chat.completions.create({
+    model,
+    messages: [
+      {
+        role: 'system',
+        content:
+          'You are AURA, a personal AI assistant focused on productivity, analysis, creativity, and user guidance.',
+      },
+      { role: 'user', content: message },
+    ],
+    temperature: 0.7,
+  });
+
+  return (
+    completion.choices[0]?.message?.content ??
+    'AURA was unable to generate a response for that request.'
+  );
+}
+
+export async function generateImagePrompt(prompt: string) {
+  return {
+    status: 'ready',
+    mode: env.AI_PROVIDER,
+    prompt,
+    recommendedPrompt:
+      `Create a polished, cinematic hero image for a personal AI assistant. Visual style: premium, modern, clean, realistic lighting. Subject: ${prompt}.`,
+    note: 'This starter is ready for provider-specific image generation endpoints.',
+  };
+}
+
+export async function generateVideoConcept(prompt: string) {
+  return {
+    status: 'ready',
+    mode: env.AI_PROVIDER,
+    prompt,
+    concept: {
+      title: 'AURA product teaser',
+      hook: 'Your personal intelligence, always ready.',
+      beats: [
+        'Open the app and launch the AI assistant',
+        'Show live chat, analysis, and idea generation',
+        'Demonstrate image and video generation workflows',
+        'Close with a location-aware and productivity-focused promise',
+      ],
+    },
+    note: 'Connect this endpoint to a video provider when you are ready to generate actual footage.',
+  };
+}
+
+export function getFeatureSummary(text: string) {
+  return {
+    summary: `AURA reviewed the following context and identified the main themes: ${text.substring(0, 180)}...`,
+    insights: [
+      'The prompt suggests a conversational workflow.',
+      'There is potential for assistant-driven action suggestions.',
+      'This could be expanded into analytics and creative prompts.',
+    ],
+  };
+}
