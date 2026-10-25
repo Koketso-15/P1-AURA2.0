@@ -99,9 +99,7 @@ function App() {
 
   const authAction = async () => {
     const endpoint = authMode === 'register' ? '/api/auth/register' : '/api/auth/login';
-    const body = authMode === 'register'
-      ? { name, email, password }
-      : { email, password };
+    const body = authMode === 'register' ? { name, email, password } : { email, password };
 
     const res = await fetch(`${apiBase}${endpoint}`, {
       method: 'POST',

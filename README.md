@@ -1,17 +1,16 @@
-# AURA 2.0
+# P1-AURA2.0
 
-AURA 2.0 is an AI personal assistant platform for chat, data analysis, innovation workflows, and trading intelligence. This version adds a serious trading assistant layer with technical market analysis, code generation, risk review, SutaLight connectivity, and a basic authenticated user profile model for a more app-like flow.
+This is a startup-ready AURA 2.0 application focused on a personal AI assistant with trading intelligence. It includes chat, input analysis, trading modules, code review strategy logic, user auth, and a SutaLight connector layer.
 
-## What is included
+## Features
 
-- AI chat assistant
-- Data analysis and insight generation
-- Trading assistant with market analysis
-- Code maker and code breaker workflow
-- SutaLight signal integration layer
-- User registration and login flow with profile support
-- Persistent local JSON storage for users, strategies, and signals
-- React dashboard UI for trading and profile interactions
+- AI chat conversations
+- Market analysis assistant
+- Code-maker and code-breaker strategy tooling
+- SutaLight integration stub
+- User register/login flow
+- Watchlist + signal dashboards
+- Technical indicator logic (SMA, RSI, MACD)
 
 ## Stack
 
@@ -19,154 +18,81 @@ AURA 2.0 is an AI personal assistant platform for chat, data analysis, innovatio
 - Node.js
 - TypeScript
 - Express
-- OpenAI-compatible AI layer
-- Local JSON persistence layer
+- JWT-based demo auth
+- JSON storage for user and strategy records
 
 ### Frontend
-- React
+- React + TypeScript
 - Vite
-- TypeScript
 
-## Repository structure
-
-```text
-.
-├── README.md
-├── .env.example
-├── docker-compose.yml
-├── docs/
-│   └── ARCHITECTURE.md
-├── backend/
-│   ├── Dockerfile
-│   ├── package.json
-│   ├── tsconfig.json
-│   ├── data/
-│   │   └── app-data.json
-│   └── src/
-│       ├── index.ts
-│       ├── config/
-│       │   └── env.ts
-│       ├── routes/
-│       │   ├── auth.ts
-│       │   ├── chat.ts
-│       │   ├── features.ts
-│       │   └── trading.ts
-│       └── services/
-│           ├── ai.service.ts
-│           ├── auth.service.ts
-│           ├── market.service.ts
-│           └── trading.service.ts
-├── frontend/
-│   ├── Dockerfile
-│   ├── package.json
-│   ├── tsconfig.json
-│   ├── tsconfig.node.json
-│   ├── vite.config.ts
-│   ├── index.html
-│   └── src/
-│       ├── App.tsx
-│       ├── main.tsx
-│       └── styles.css
-└── .gitignore
-```
-
-## Quick start
-
-### 1. Install dependencies
+## Local setup
 
 ```bash
 cd backend && npm install
 cd ../frontend && npm install
 ```
 
-### 2. Configure environment
+Create environment variables:
 
 ```bash
 cp .env.example .env
 ```
 
-### 3. Run backend
+Run backend:
 
 ```bash
 cd backend
 npm run dev
 ```
 
-### 4. Run frontend
+Run frontend:
 
 ```bash
 cd frontend
 npm run dev
 ```
 
-Frontend: http://localhost:5173
-Backend: http://localhost:3001
+## API overview
 
-## Advanced trading capabilities
+### Chat
 
-### Market analysis
+```bash
+curl -X POST http://localhost:3001/api/chat \
+  -H "Content-Type: application/json" \
+  -d '{"message":"Analyze this market setup for breakout potential."}'
+```
+
+### Trading analysis
 
 ```bash
 curl -X POST http://localhost:3001/api/trading/analyze \
   -H "Content-Type: application/json" \
-  -d '{
-    "symbol":"AAPL",
-    "market":"NASDAQ",
-    "commentary":"Momentum is improving after a strong breakout.",
-    "prices":[100,101,102,104,107,110,109,112,113,116]
-  }'
+  -d '{"symbol":"AAPL","market":"NASDAQ","commentary":"Momentum is improving after a strong breakout."}'
 ```
 
-### Code maker / breaker
+### Code generation
 
 ```bash
 curl -X POST http://localhost:3001/api/trading/code \
   -H "Content-Type: application/json" \
-  -d '{
-    "strategy":"Trend continuation breakout",
-    "focus":"risk filtering and signal validation"
-  }'
+  -d '{"strategy":"Trend continuation breakout","focus":"risk filtering and signal validation"}'
 ```
 
-### SutaLight connection
-
-```bash
-curl -X POST http://localhost:3001/api/trading/sutalight \
-  -H "Content-Type: application/json" \
-  -d '{
-    "market":"NASDAQ",
-    "signal":"bullish-trend-acceleration"
-  }'
-```
-
-### Authentication flow
+### User registration
 
 ```bash
 curl -X POST http://localhost:3001/api/auth/register \
   -H "Content-Type: application/json" \
-  -d '{
-    "name":"Trader One",
-    "email":"trader@example.com",
-    "password":"demo123"
-  }'
+  -d '{"name":"Trader One","email":"trader@example.com","password":"demo123"}'
 ```
-
-## Features added in this upgrade
-
-- real technical indicator logic for SMA, RSI, and MACD
-- local strategy persistence with JSON store
-- user profile and login flow
-- watchlist and signal summaries
-- modular API and service architecture
-- live market API hook path with fallback demo data
 
 ## Roadmap
 
-- add database-backed persistence (Postgres / SQLite)
-- add charting with Recharts or TradingView widgets
-- add real market data sources (Polygon, Alpha Vantage, Finnhub)
-- add user watchlists, notifications, and vaults
-- add strategy simulation and backtesting engine
-- add authentication with JWT refresh tokens and roles
+- connect live market data feeds
+- add real charting and watchlists
+- add DB persistence
+- add strategy backtesting and alerts
+- add production-grade auth and roles
+- connect real SutaLight API
 
-This is now a much more realistic AI trading assistant platform starter with a cleaner architecture and more meaningful workflows.
+This version is a stronger trading AI starter with working structure and useful architecture.

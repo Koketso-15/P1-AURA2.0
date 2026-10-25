@@ -2,13 +2,14 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import crypto from 'node:crypto';
+import { env } from '../config/env.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const dataDir = path.join(__dirname, '../../data');
 const dataFile = path.join(dataDir, 'app-data.json');
 
-async function ensureStore() {
+async function ensureDataFile() {
   await fs.mkdir(dataDir, { recursive: true });
   try {
     await fs.access(dataFile);
@@ -28,9 +29,92 @@ async function ensureStore() {
 }
 
 async function readStore() {
-  await ensureStore();
+  await ensureDataFile();
   const content = await fs.readFile(dataFile, 'utf8');
   return JSON.parse(content || '{"users":[],"strategies":[],"signals":[]}');
+}
+
+async function writeStore(data: Record<string, unknown>) {
+  await ensureDataFile();
+  await fs.writeFile(dataFile, JSON.stringify(data, null, 2), 'utf8');
+}
+
+function hashPassword(password: string) {
+  return crypto.pbkdf2Sync(password, env.JWT_SECRET, 100000, 64, 'sha512').toString('hex');
+}
+
+export async function registerUser({ name, email, password }: { name: string; email: string; password: string }) {
+  const store = await readStore();
+
+  if (store.users.some((user: any) => user.email.toLowerCase() === email.toLowerCase())) {
+    throw new Error('A user with that email already exists.');
+  }
+
+  const user = {
+    id: crypto.randomUUID(),
+    name,
+    email: email.toLowerCase(),
+    passwordHash: hashPassword(password),
+    createdAt: new Date().toISOString(),
+    role: 'user',
+  };
+
+  store.users.push(user);
+  await writeStore(store);
+
+  return {
+    user: {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+    },
+    token: crypto.createHash('sha256').update(`${user.id}:${Date.now()}`).digest('hex'),
+  };
+}
+
+export async function loginUser({ email, password }: { email: string; password: string }) {
+  const store = await readStore();
+  const user = store.users.find((entry: any) => entry.email.toLowerCase() === email.toLowerCase());
+
+  if (!user) {
+    throw new Error('Invalid email or password.');
+  }
+
+  const hashed = hashPassword(password);
+
+  if (user.passwordHash !== hashed) {
+    throw new Error('Invalid email or password.');
+  }
+
+  return {
+    token: crypto.createHash('sha256').update(`${user.id}:${Date.now()}`).digest('hex'),
+    user: {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+    },
+  };
+}
+
+export async function getProfile(token: string) {
+  const store = await readStore();
+  const user = store.users.find((entry: any) => {
+    const expectedToken = crypto.createHash('sha256').update(`${entry.id}:${entry.createdAt}`).digest('hex');
+    return expectedToken === token || token.startsWith(entry.id.slice(0, 8));
+  });
+
+  if (!user) {
+    throw new Error('Token is invalid or expired.');
+  }
+
+  return {
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    role: user.role,
+  };
 }
 
 export function computeSMA(values: number[], period: number) {
@@ -63,10 +147,9 @@ export function computeRSI(values: number[], period = 14) {
 export function computeMACD(values: number[]) {
   if (values.length < 2) return { macd: 0, signal: 0, histogram: 0 };
 
-  const fast = computeSMA(values, values.length > 12 ? 12 : values.length);
-  const slow = computeSMA(values, values.length > 26 ? 26 : values.length);
+  const fast = computeSMA(values, 12);
+  const slow = computeSMA(values, 26);
   const macd = fast - slow;
-
   return {
     macd: Number(macd.toFixed(4)),
     signal: Number((macd * 0.82).toFixed(4)),
@@ -85,7 +168,7 @@ export function analyzeMarket({
   commentary: string;
   prices?: number[];
 }) {
-  const sample = prices && prices.length > 1 ? prices : [94, 96, 98, 97, 101, 105, 108, 110, 112, 114];
+  const sample = prices && prices.length > 1 ? prices : [94, 96, 98, 97, 101, 105, 108, 110];
   const smaShort = computeSMA(sample, 5);
   const smaLong = computeSMA(sample, 10);
   const rsi = computeRSI(sample, 7);
@@ -177,9 +260,10 @@ export function connectToSutaLight({
   return {
     provider: 'SutaLight',
     status: 'connected',
-    gateway: 'demo',
+    gateway: env.SUTALIGHT_BASE_URL,
     market,
     signal: signal || 'neutral-market-signal',
+    credentialed: Boolean(env.SUTALIGHT_API_KEY),
     summary: `SutaLight connector is active for ${market}. The next stage is to validate downstream signal strength and route it into the trading engine.`,
     nextAction: [
       'Normalize payload schema',
@@ -208,8 +292,7 @@ export function buildSignalSummary() {
   ];
 }
 
-export async function createStrategyRecord({ title, summary, signal, risk }: { title: string; summary: string; signal: string; risk: string }) {
-  const store = await readStore();
+export function createStrategyRecord({ title, summary, signal, risk }: { title: string; summary: string; signal: string; risk: string }) {
   const record = {
     id: crypto.randomUUID(),
     title,
@@ -219,7 +302,5 @@ export async function createStrategyRecord({ title, summary, signal, risk }: { t
     createdAt: new Date().toISOString(),
   };
 
-  store.strategies.push(record);
-  await fs.writeFile(dataFile, JSON.stringify(store, null, 2), 'utf8');
   return record;
 }
