@@ -1,0 +1,68 @@
+import { Router } from 'express';
+import {
+  analyzeMarket,
+  generateTradingCode,
+  connectToSutaLight,
+} from '../services/trading.service.js';
+
+const router = Router();
+
+router.post('/analyze', async (req, res) => {
+  const { symbol, market, commentary } = req.body ?? {};
+
+  if (!symbol || typeof symbol !== 'string' || !market || typeof market !== 'string') {
+    return res.status(400).json({ error: 'symbol and market are required.' });
+  }
+
+  try {
+    const result = analyzeMarket({
+      symbol,
+      market,
+      commentary: typeof commentary === 'string' ? commentary : '',
+    });
+
+    return res.json(result);
+  } catch (error) {
+    return res.status(500).json({ error: error instanceof Error ? error.message : 'Unknown trading analysis error' });
+  }
+});
+
+router.post('/code', async (req, res) => {
+  const { strategy, focus } = req.body ?? {};
+
+  if (!strategy || typeof strategy !== 'string') {
+    return res.status(400).json({ error: 'strategy is required.' });
+  }
+
+  try {
+    const result = generateTradingCode({
+      strategy,
+      focus: typeof focus === 'string' ? focus : 'risk management and signal validation',
+    });
+
+    return res.json(result);
+  } catch (error) {
+    return res.status(500).json({ error: error instanceof Error ? error.message : 'Unknown code generation error' });
+  }
+});
+
+router.post('/sutalight', async (req, res) => {
+  const { market, signal } = req.body ?? {};
+
+  if (!market || typeof market !== 'string') {
+    return res.status(400).json({ error: 'market is required.' });
+  }
+
+  try {
+    const result = connectToSutaLight({
+      market,
+      signal: typeof signal === 'string' ? signal : '',
+    });
+
+    return res.json(result);
+  } catch (error) {
+    return res.status(500).json({ error: error instanceof Error ? error.message : 'Unknown SutaLight connection error' });
+  }
+});
+
+export default router;

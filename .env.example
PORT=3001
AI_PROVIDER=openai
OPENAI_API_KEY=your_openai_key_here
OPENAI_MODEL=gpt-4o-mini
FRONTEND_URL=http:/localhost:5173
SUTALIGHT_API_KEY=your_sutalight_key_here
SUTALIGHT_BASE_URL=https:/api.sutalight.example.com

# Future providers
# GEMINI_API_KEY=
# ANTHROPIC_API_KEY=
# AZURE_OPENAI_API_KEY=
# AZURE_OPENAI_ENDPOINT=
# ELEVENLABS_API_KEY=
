@@ -1,0 +1,157 @@
+# AURA 2.0
+
+AURA 2.0 is a full-stack AI personal assistant platform built for productivity, creativity, market intelligence, and trading research. It now includes a trading assistant for market analysis, a code-maker/code-breaker module for strategy and security review, and a SutaLight connection layer for external signal integration.
+
+## Features
+
+- AI chat assistant
+- Data analysis and insight generation
+- Trading assistant with market analysis
+- Code-maker and code-breaker workflows
+- SutaLight integration stub and connector layer
+- Image and video concept generation
+- Personal assistant workflows
+- Location-aware and offline-ready design direction
+
+## Stack
+
+### Backend
+- Node.js
+- TypeScript
+- Express
+- OpenAI-compatible AI service layer
+
+### Frontend
+- React
+- Vite
+- TypeScript
+
+## Repository structure
+
+```text
+.
+├── README.md
+├── .env.example
+├── docker-compose.yml
+├── docs/
+│   └── ARCHITECTURE.md
+├── backend/
+│   ├── Dockerfile
+│   ├── package.json
+│   ├── tsconfig.json
+│   └── src/
+│       ├── index.ts
+│       ├── config/
+│       │   └── env.ts
+│       ├── routes/
+│       │   ├── chat.ts
+│       │   ├── features.ts
+│       │   └── trading.ts
+│       └── services/
+│           ├── ai.service.ts
+│           └── trading.service.ts
+├── frontend/
+│   ├── Dockerfile
+│   ├── package.json
+│   ├── tsconfig.json
+│   ├── tsconfig.node.json
+│   ├── vite.config.ts
+│   ├── index.html
+│   └── src/
+│       ├── App.tsx
+│       ├── main.tsx
+│       └── styles.css
+└── .gitignore
+```
+
+## Quick start
+
+### 1. Install dependencies
+
+```bash
+cd backend && npm install
+cd ../frontend && npm install
+```
+
+### 2. Set environment variables
+
+```bash
+cp .env.example .env
+```
+
+Example values:
+
+```env
+PORT=3001
+AI_PROVIDER=openai
+OPENAI_API_KEY=your_openai_key_here
+OPENAI_MODEL=gpt-4o-mini
+FRONTEND_URL=http://localhost:5173
+SUTALIGHT_API_KEY=your_sutalight_key_here
+SUTALIGHT_BASE_URL=https://api.sutalight.example.com
+```
+
+### 3. Run the backend
+
+```bash
+cd backend
+npm run dev
+```
+
+### 4. Run the frontend
+
+```bash
+cd frontend
+npm run dev
+```
+
+Frontend: http://localhost:5173
+Backend: http://localhost:3001
+
+## Trading and strategy features
+
+### Market analysis endpoint
+
+```bash
+curl -X POST http://localhost:3001/api/trading/analyze \
+  -H "Content-Type: application/json" \
+  -d '{
+    "symbol":"AAPL",
+    "market":"NASDAQ",
+    "commentary":"Momentum is improving after a strong breakout. Watch for key resistance near the prior high."
+  }'
+```
+
+### Code maker / breaker endpoint
+
+```bash
+curl -X POST http://localhost:3001/api/trading/code \
+  -H "Content-Type: application/json" \
+  -d '{
+    "strategy":"Breakout momentum strategy",
+    "focus":"risk management and signal validation"
+  }'
+```
+
+### SutaLight integration
+
+```bash
+curl -X POST http://localhost:3001/api/trading/sutalight \
+  -H "Content-Type: application/json" \
+  -d '{
+    "market":"NASDAQ",
+    "signal":"bullish-trend-acceleration"
+  }'
+```
+
+## Concepts included
+
+- Market sentiment and risk evaluation
+- Trend strength analysis
+- Strategy generation and code scaffolding
+- Risk validation and code breaker checks
+- External signal connector for SutaLight
+
+## Notes
+
+This is a starter architecture for a trading-oriented AI assistant. The workflows are intentionally modular and can be connected to real market data feeds, trading APIs, and production-grade strategy engines.

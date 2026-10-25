@@ -1,0 +1,136 @@
+import { useState } from 'react';
+
+const apiBase = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:3001';
+
+export default function App() {
+  const [tab, setTab] = useState<'chat' | 'trading'>('chat');
+  const [prompt, setPrompt] = useState('Help me plan a productive day for my AI startup work.');
+  const [symbol, setSymbol] = useState('AAPL');
+  const [market, setMarket] = useState('NASDAQ');
+  const [response, setResponse] = useState('');
+  const [loading, setLoading] = useState(false);
+
+  const sendChat = async (customPrompt?: string) => {
+    const nextPrompt = customPrompt ?? prompt;
+    setLoading(true);
+    setResponse('');
+
+    try {
+      const res = await fetch(`${apiBase}/api/chat`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: nextPrompt }),
+      });
+
+      const data = await res.json();
+      setResponse(data.reply ?? data.error ?? 'No response returned.');
+    } catch (error) {
+      setResponse(
+        error instanceof Error ? error.message : 'Could not reach the backend. Make sure it is running.',
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const analyzeMarket = async () => {
+    setLoading(true);
+    setResponse('');
+
+    try {
+      const res = await fetch(`${apiBase}/api/trading/analyze`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          symbol,
+          market,
+          commentary: 'Momentum is improving after a strong breakout and buyers are defending the trend.',
+        }),
+      });
+
+      const data = await res.json();
+      setResponse(JSON.stringify(data, null, 2));
+    } catch (error) {
+      setResponse(error instanceof Error ? error.message : 'Market analysis failed.');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="app-shell">
+      <aside className="sidebar">
+        <div>
+          <p className="eyebrow">Personal AI assistant</p>
+          <h1>AURA 2.0</h1>
+        </div>
+
+        <nav className="nav">
+          <button onClick={() => setTab('chat')}>Chat</button>
+          <button onClick={() => setTab('trading')}>Trading</button>
+          <button onClick={() => sendChat('Create a trading thesis for a breakout strategy.')}>Strategy</button>
+          <button onClick={() => sendChat('Review this code for risk and security issues.')}>Code Review</button>
+        </nav>
+      </aside>
+
+      <main className="content">
+        <header className="topbar">
+          <div>
+            <p className="eyebrow">AI workspace</p>
+            <h2>{tab === 'chat' ? 'Assistant Console' : 'Trading Intelligence'}</h2>
+          </div>
+        </header>
+
+        {tab === 'chat' ? (
+          <>
+            <section className="panel">
+              <textarea
+                value={prompt}
+                onChange={(event) => setPrompt(event.target.value)}
+                rows={6}
+                placeholder="Ask AURA anything..."
+              />
+
+              <div className="actions">
+                <button className="primary" onClick={() => sendChat()} disabled={loading}>
+                  {loading ? 'Thinking...' : 'Send to AURA'}
+                </button>
+              </div>
+            </section>
+          </>
+        ) : (
+          <section className="panel trading-panel">
+            <div className="trading-grid">
+              <label>
+                Symbol
+                <input value={symbol} onChange={(event) => setSymbol(event.target.value)} />
+              </label>
+
+              <label>
+                Market
+                <input value={market} onChange={(event) => setMarket(event.target.value)} />
+              </label>
+            </div>
+
+            <div className="actions">
+              <button className="primary" onClick={analyzeMarket} disabled={loading}>
+                {loading ? 'Analyzing...' : 'Analyze Market'}
+              </button>
+            </div>
+          </section>
+        )}
+
+        <section className="panel response-panel">
+          <h3>Response</h3>
+          <div className="response-box">
+            {response ? (
+              <pre>{response}</pre>
+            ) : (
+              <p className="placeholder">Your AI response will appear here.</p>
+            )}
+          </div>
+        </section>
+      </main>
+    </div>
+  );
+}
